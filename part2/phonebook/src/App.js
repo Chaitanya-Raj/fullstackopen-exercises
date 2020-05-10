@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import Filter from "./components/filter";
+import PersonForm from "./components/personform";
+import Persons from "./components/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -14,10 +17,11 @@ const App = () => {
 
   const handleFilter = (event) => {
     setFilter(event.target.value);
-    let arr = persons.filter((person) =>
-      person.name.toLowerCase().startsWith(event.target.value.toLowerCase())
+    setFilteredPersons(
+      persons.filter((person) =>
+        person.name.toLowerCase().startsWith(event.target.value.toLowerCase())
+      )
     );
-    setFilteredPersons(arr);
   };
 
   const handleNameChange = (event) => {
@@ -33,7 +37,9 @@ const App = () => {
     if (persons.some((person) => person.name === newName)) {
       alert(`${newName} is already added to phonebook`);
     } else {
-      setPersons(persons.concat({ name: newName, number: newNumber }));
+      let tempPersons = persons.concat({ name: newName, number: newNumber });
+      setPersons(tempPersons);
+      setFilteredPersons(tempPersons);
       setNewName("");
       setNewNumber("");
     }
@@ -42,29 +48,17 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <p>
-        filter shown with <input value={filter} onChange={handleFilter} />
-      </p>
-      <h2>add a new</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange} />
-          <div>
-            number: <input value={newNumber} onChange={handleNumberChange} />
-          </div>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      <ul>
-        {filteredPersons.map((person) => (
-          <li key={person.name}>
-            {person.name} {person.number}
-          </li>
-        ))}
-      </ul>
+      <Filter filter={filter} handleFilter={handleFilter} />
+      <h3>add a new</h3>
+      <PersonForm
+        newName={newName}
+        newNumber={newNumber}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange}
+        handleSubmit={handleSubmit}
+      />
+      <h3>Numbers</h3>
+      <Persons persons={filteredPersons} />
     </div>
   );
 };
