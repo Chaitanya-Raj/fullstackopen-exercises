@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Filter from "./components/filter";
 import PersonForm from "./components/personform";
 import Persons from "./components/persons";
-import contactService from "./services/contactService";
+import personService from "./services/personService";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -11,23 +11,25 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
 
-  useEffect(() => {
-    contactService.getAll().then((response) => {
+  const syncPersons = () => {
+    personService.getAll().then((response) => {
       setPersons(response.data);
       setFilteredPersons(response.data);
     });
+  };
+
+  useEffect(() => {
+    syncPersons();
   }, []);
 
-  const deleteContact = (id) => {
+  const deletePerson = (id) => {
     if (
       window.confirm(
         `Delete ${persons.find((person) => person.id === id).name}?`
       )
     ) {
-      contactService.deleteContact(id).then((response) => {
-        let tempPersons = persons.filter((person) => person.id !== id);
-        setPersons(tempPersons);
-        setFilteredPersons(tempPersons);
+      personService.deletePerson(id).then((response) => {
+        syncPersons();
       });
     }
   };
@@ -51,18 +53,25 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    let newPerson = { name: newName, number: newNumber };
     if (persons.some((person) => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
+      let existingPerson = persons.find((person) => person.name === newName);
+      if (
+        window.confirm(
+          `${existingPerson.name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        personService.updatePerson(existingPerson.id, newPerson).then(() => {
+          syncPersons();
+        });
+      }
     } else {
-      let newContact = { name: newName, number: newNumber };
-      contactService.createNew(newContact).then((response) => {
-        setNewName("");
-        setNewNumber("");
-        let tempPersons = persons.concat(response.data);
-        setPersons(tempPersons);
-        setFilteredPersons(tempPersons);
+      personService.createNew(newPerson).then(() => {
+        syncPersons();
       });
     }
+    setNewName("");
+    setNewNumber("");
   };
 
   return (
@@ -83,7 +92,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={filteredPersons} deleteContact={deleteContact} />
+      <Persons persons={filteredPersons} deletePerson={deletePerson} />
     </div>
   );
 };
