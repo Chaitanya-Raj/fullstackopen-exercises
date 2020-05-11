@@ -17,6 +17,10 @@ const App = () => {
     className: null,
   });
 
+  useEffect(() => {
+    syncPersons();
+  }, []);
+
   const syncPersons = () => {
     personService.getAll().then((response) => {
       setPersons(response.data);
@@ -24,9 +28,19 @@ const App = () => {
     });
   };
 
-  useEffect(() => {
+  const showNotification = (msg, className) => {
+    setNotification({
+      msg,
+      className,
+    });
+    setTimeout(() => {
+      setNotification({
+        msg: null,
+        className: null,
+      });
+    }, 5000);
     syncPersons();
-  }, []);
+  };
 
   const deletePerson = (id) => {
     if (
@@ -34,20 +48,11 @@ const App = () => {
         `Delete ${persons.find((person) => person.id === id).name}?`
       )
     ) {
-      personService.deletePerson(id).then((response) => {
-        setNotification({
-          msg: `Deleted ${
-            persons.find((person) => person.id === id).name
-          } from phonebook`,
-          className: "error",
-        });
-        setTimeout(() => {
-          setNotification({
-            msg: null,
-            className: null,
-          });
-        }, 5000);
-        syncPersons();
+      personService.deletePerson(id).then(() => {
+        showNotification(
+          `Deleted ${persons.find((person) => person.id === id).name}`,
+          "notification"
+        );
       });
     }
   };
@@ -79,33 +84,21 @@ const App = () => {
           `${existingPerson.name} is already added to phonebook, replace the old number with a new one?`
         )
       ) {
-        personService.updatePerson(existingPerson.id, newPerson).then(() => {
-          setNotification({
-            msg: `Updated ${newPerson.name} in phonebook`,
-            className: "notification",
+        personService
+          .updatePerson(existingPerson.id, newPerson)
+          .then(() => {
+            showNotification(`Updated ${newPerson.name}`, "notification");
+          })
+          .catch(() => {
+            showNotification(
+              `Information of ${newPerson.name} has already been removed from the server`,
+              "error"
+            );
           });
-          setTimeout(() => {
-            setNotification({
-              msg: null,
-              className: null,
-            });
-          }, 5000);
-          syncPersons();
-        });
       }
     } else {
       personService.createNew(newPerson).then(() => {
-        setNotification({
-          msg: `Added ${newPerson.name} to phonebook`,
-          className: "notification",
-        });
-        setTimeout(() => {
-          setNotification({
-            msg: null,
-            className: null,
-          });
-        }, 5000);
-        syncPersons();
+        showNotification(`Added ${newPerson.name}`, "notification");
       });
     }
     setNewName("");
