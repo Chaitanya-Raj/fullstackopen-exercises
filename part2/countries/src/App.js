@@ -16,11 +16,15 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    setFiltered(
-      countries.filter((country) =>
-        country.name.toLowerCase().includes(search.toLowerCase())
-      )
-    );
+    if (search === "") {
+      setFiltered([]);
+    } else {
+      setFiltered(
+        countries.filter((country) =>
+          country.name.toLowerCase().includes(search.toLowerCase())
+        )
+      );
+    }
     setButtonPressed(false);
   }, [countries, search]);
 
@@ -40,7 +44,6 @@ const App = () => {
           }}
         />
       </p>
-      <p>debug: {search}</p>
       <Countries
         filtered={buttonPressed ? [selected] : filtered}
         showCountry={showCountry}
