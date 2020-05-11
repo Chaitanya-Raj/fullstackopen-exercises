@@ -10,4 +10,8 @@ const createNew = (newContact) => {
   return Axios.post(baseURL, newContact);
 };
 
-export default { getAll, createNew };
+const deleteContact = (id) => {
+  return Axios.delete(`${baseURL}/${id}`);
+};
+
+export default { getAll, createNew, deleteContact };

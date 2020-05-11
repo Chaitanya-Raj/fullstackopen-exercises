@@ -18,6 +18,20 @@ const App = () => {
     });
   }, []);
 
+  const deleteContact = (id) => {
+    if (
+      window.confirm(
+        `Delete ${persons.find((person) => person.id === id).name}?`
+      )
+    ) {
+      contactService.deleteContact(id).then((response) => {
+        let tempPersons = persons.filter((person) => person.id !== id);
+        setPersons(tempPersons);
+        setFilteredPersons(tempPersons);
+      });
+    }
+  };
+
   const handleFilter = (event) => {
     setFilter(event.target.value);
     setFilteredPersons(
@@ -42,7 +56,6 @@ const App = () => {
     } else {
       let newContact = { name: newName, number: newNumber };
       contactService.createNew(newContact).then((response) => {
-        console.log(response.data);
         setNewName("");
         setNewNumber("");
         let tempPersons = persons.concat(response.data);
@@ -70,7 +83,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={filteredPersons} />
+      <Persons persons={filteredPersons} deleteContact={deleteContact} />
     </div>
   );
 };
