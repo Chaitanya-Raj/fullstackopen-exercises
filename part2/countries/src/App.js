@@ -6,6 +6,8 @@ const App = () => {
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState([]);
   const [countries, setCountries] = useState([]);
+  const [selected, setSelected] = useState({});
+  const [buttonPressed, setButtonPressed] = useState(false);
 
   useEffect(() => {
     Axios.get("https://restcountries.eu/rest/v2/all")
@@ -21,6 +23,12 @@ const App = () => {
     );
   }, [countries, search]);
 
+  const showCountry = (event) => {
+    console.log(event.target.getAttribute("data"));
+    setSelected(event.target.getAttribute("data"));
+    setButtonPressed(true);
+  };
+
   return (
     <div>
       <p>
@@ -33,7 +41,19 @@ const App = () => {
         />
       </p>
       <p>debug: {search}</p>
-      <Countries filtered={filtered} />
+      {true ? (
+        <Countries
+          buttonPressed={true}
+          filtered={[selected]}
+          showCountry={showCountry}
+        />
+      ) : (
+        <Countries
+          buttonPressed={false}
+          filtered={filtered}
+          showCountry={showCountry}
+        />
+      )}
     </div>
   );
 };
