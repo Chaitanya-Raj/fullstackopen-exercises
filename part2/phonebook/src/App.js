@@ -3,6 +3,8 @@ import Filter from "./components/filter";
 import PersonForm from "./components/personform";
 import Persons from "./components/persons";
 import personService from "./services/personService";
+import Notification from "./components/notification";
+import "./App.css";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +12,10 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [notification, setNotification] = useState({
+    msg: null,
+    className: null,
+  });
 
   const syncPersons = () => {
     personService.getAll().then((response) => {
@@ -29,6 +35,18 @@ const App = () => {
       )
     ) {
       personService.deletePerson(id).then((response) => {
+        setNotification({
+          msg: `Deleted ${
+            persons.find((person) => person.id === id).name
+          } from phonebook`,
+          className: "error",
+        });
+        setTimeout(() => {
+          setNotification({
+            msg: null,
+            className: null,
+          });
+        }, 5000);
         syncPersons();
       });
     }
@@ -62,11 +80,31 @@ const App = () => {
         )
       ) {
         personService.updatePerson(existingPerson.id, newPerson).then(() => {
+          setNotification({
+            msg: `Updated ${newPerson.name} in phonebook`,
+            className: "notification",
+          });
+          setTimeout(() => {
+            setNotification({
+              msg: null,
+              className: null,
+            });
+          }, 5000);
           syncPersons();
         });
       }
     } else {
       personService.createNew(newPerson).then(() => {
+        setNotification({
+          msg: `Added ${newPerson.name} to phonebook`,
+          className: "notification",
+        });
+        setTimeout(() => {
+          setNotification({
+            msg: null,
+            className: null,
+          });
+        }, 5000);
         syncPersons();
       });
     }
@@ -76,6 +114,10 @@ const App = () => {
 
   return (
     <div>
+      <Notification
+        message={notification.msg}
+        className={notification.className}
+      />
       <h2>Phonebook</h2>
 
       <Filter filter={filter} handleFilter={handleFilter} />
