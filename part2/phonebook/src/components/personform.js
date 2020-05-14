@@ -10,10 +10,9 @@ const PersonForm = ({
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        name: <input value={newName} onChange={handleNameChange} required />
+        name: <input value={newName} onChange={handleNameChange} />
         <div>
-          number:{" "}
-          <input value={newNumber} onChange={handleNumberChange} required />
+          number: <input value={newNumber} onChange={handleNumberChange} />
         </div>
       </div>
       <div>
